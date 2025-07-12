@@ -67,38 +67,42 @@
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th class="p-4">Check</th>
+                        {{-- <th class="px-6 py-3"></th> --}}
                         <th class="px-6 py-3">ID</th>
                         <th class="px-6 py-3">Timestamp</th>
-                        <th class="px-6 py-3">Agent Name</th>
-                        <th class="px-6 py-3">Rule</th>
-                        <th class="px-6 py-3">Level</th>
+                        <th class="px-6 py-3">Host</th>
+                        <th class="px-6 py-3">Source</th>
+                        <th class="px-6 py-3">Process</th>
+                        <th class="px-6 py-3">Message</th>
                         <th class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($alerts as $alert)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <td class="p-4">
+                            {{-- <td class="p-4">
                                 <div class="flex items-center">
                                     <input id="checkbox-{{ $loop->index }}" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="checkbox-{{ $loop->index }}" class="sr-only">checkbox</label>
                                 </div>
-                            </td>
+                            </td> --}}
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                {{ $alert->id }}
+                                {{ ($alerts->firstItem() ?? 0) + $loop->index }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ $alert->timestamp ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ data_get($alert, 'agent.name', '-') }}
+                                {{ $alert->host ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ data_get($alert, 'rule.description', '-') }}
+                                {{ $alert->source ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ data_get($alert, 'rule.level', '-') }}
+                                {{ $alert->process ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ $alert->message ?? '-' }}
                             </td>
                             <td class="px-6 py-4">
                                 <button onclick="showFullLog('{{ $alert->id }}')" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-1.5 dark:bg-blue-500 dark:hover:bg-blue-600">
