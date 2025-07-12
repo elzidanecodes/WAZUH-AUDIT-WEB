@@ -3,42 +3,42 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PredictedLog;
+use App\Models\Statistics;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ReportsController extends Controller
 {
     public function index()
     {
-        // 🔸 Contoh data dummy
-        $data = [
-            'jumlah' => [
-                'brute_force' => 120,
-                'ddos' => 90,
-                'normal' => 200,
-            ],
-            'metric' => [
-                'precision' => 0.91,
-                'recall' => 0.87,
-                'f1_score' => 0.89,
-                'mttd' => '2.4s',
-                'mttr' => '7.6s'
-            ]
-        ];
+        $logs = PredictedLog::orderBy('timestamp', 'desc')->paginate(10);
+        $stat = Statistics::orderBy('_id', 'desc')->first();
 
-        return view('reports.index', compact('data'));
+        return view('reports.reports', compact('logs', 'stat'));
     }
 
-    public function exportCsv()
+    public function upload(Request $request)
     {
-        $filename = 'laporan_serangan.csv';
-        $headers = ['Content-Type' => 'text/csv'];
-        $content = implode(",", ['Serangan', 'Jumlah']) . "\n";
-        $content .= "Brute Force,120\nDDoS,90\nNormal,200\n";
+        $request->validate([
+            'file' => 'required|mimes:csv,txt'
+        ]);
 
-        return Response::make($content, 200, array_merge($headers, [
-            'Content-Disposition' => "attachment; filename=$filename",
-        ]));
+        // Simpan file CSV ke folder Python input
+        $filename = 'uploaded.csv';
+        $destinationPath = storage_path('app/python/inputs');
+        $request->file('file')->move($destinationPath, $filename);
+
+        // Jalankan Python script prediksi dan mttd_mttr
+        $process = new Process(['python', base_path('python/predict_rf.py')]);
+        $process->setTimeout(180); // 3 menit
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return redirect()->route('reports')->with('success', 'Data berhasil diprediksi dan MTTD/MTTR dihitung.');
     }
-
 }
