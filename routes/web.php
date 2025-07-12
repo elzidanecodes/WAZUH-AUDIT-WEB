@@ -23,7 +23,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/log', [LogController::class, 'index'])->name('log');
     Route::get('/log/{id}', [LogController::class, 'show']);
     Route::get('/api/alert-stats', [LogController::class, 'getAlertStats'])->name('charts');
+    
+    // Tampilkan halaman Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
-    Route::get('/reports/export/csv', [ReportsController::class, 'exportCsv'])->name('reports.csv');
-    Route::get('/reports/export/pdf', [ReportsController::class, 'exportPdf'])->name('reports.pdf');
+
+    // Upload file CSV dan jalankan prediksi
+    Route::post('/reports/upload', [ReportsController::class, 'upload'])->name('reports.upload');
 });
