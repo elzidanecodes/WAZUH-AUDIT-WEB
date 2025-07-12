@@ -14,7 +14,7 @@
 
   </div>
       {{-- Konten Utama --}}
-    <div class="p-4 sm:ml-64 pt-24 min-h-screen">
+    <div class="p-6 sm:ml-64 pt-24 min-h-screen">
       @yield('content')
     </div>
 
