@@ -1,23 +1,36 @@
 import pandas as pd
 import joblib
-import json
+from pymongo import MongoClient
+from datetime import datetime
 
-# Load model
+# === 1. Load model ===
 model = joblib.load('./outputs/model_rf.pkl')
 
-# Load log baru
-df = pd.read_csv('./outputs/alerts_for_labeling.csv')  # Ganti dengan file log yang kamu punya
+# === 2. Load data log CSV ===
+df = pd.read_csv('storage/app/python/inputs/uploaded.csv')
 
-# Gabungkan teks untuk prediksi
+# === 3. Gabungkan field untuk prediksi ===
 df['combined'] = df['description'].fillna('') + ' ' + df['decoder'].fillna('')
 
-# Prediksi
+# === 4. Prediksi ===
 df['predicted_label'] = model.predict(df['combined'])
 
-# Ambil kolom penting saja
-hasil = df[['timestamp', 'description', 'decoder', 'predicted_label']]
+# === 5. Tambahkan kolom penanda batch upload
+upload_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+df['source'] = f"upload_{upload_time}"
 
-# Simpan ke file JSON (untuk dimasukkan ke MongoDB)
-hasil.to_json('./outputs/predicted_logs.json', orient='records', lines=True)
+# === 6. Ambil kolom yang disimpan
+hasil = df[['timestamp', 'description', 'decoder', 'predicted_label', 'source']]
 
-print("Prediksi selesai. Output JSON disimpan di: predicted_logs.json")
+# === 6. Format timestamp (opsional)
+# df['timestamp'] = pd.to_datetime(df['timestamp']) # jika perlu
+
+# === 7. Simpan ke MongoDB TANPA menghapus data lama
+client = MongoClient('mongodb://admin:admin9876@139.59.123.110:27017/')
+db = client['wazuh_db']
+collection = db['predicted_logs']
+
+# Insert sebagai batch
+collection.insert_many(hasil.to_dict(orient='records'))
+
+print("Prediksi selesai dan data baru ditambahkan ke MongoDB")
