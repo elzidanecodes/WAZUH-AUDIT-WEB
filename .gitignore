@@ -17,4 +17,11 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+<<<<<<< HEAD
+=======
+/python/__pycache__
+/python/*.pyc
+/python/*.pyo
+/python/*.pyd
+>>>>>>> ml
 /python/venv
