@@ -11,25 +11,27 @@ use Carbon\Carbon;
 class LogController extends Controller
 {
     public function index(Request $request)
-{
-    $perPage = 10;
-    $page = $request->input('page', 1);
-    $skip = ($page - 1) * $perPage;
+    {
+        $perPage = 10;
+        $page = $request->input('page', 1);
+        $skip = ($page - 1) * $perPage;
 
-    $data = Alert::orderBy('timestamp', 'desc')
-                ->skip($skip)
-                ->take($perPage)
-                ->get();
+        $query = Alert::orderBy('timestamp', 'desc');
 
-    $total = Alert::count();
+        if ($request->has('source')) {
+            $query->where('source', $request->input('source'));
+        }
 
-    $alerts = new LengthAwarePaginator($data, $total, $perPage, $page, [
-        'path' => $request->url(),
-        'query' => $request->query(),
-    ]);
+        $data = $query->skip($skip)->take($perPage)->get();
+        $total = $query->count();
 
-    return view('historis.log', compact('alerts'));
-}
+        $alerts = new LengthAwarePaginator($data, $total, $perPage, $page, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return view('historis.log', compact('alerts'));
+    }
 
     public function show($id)
     {

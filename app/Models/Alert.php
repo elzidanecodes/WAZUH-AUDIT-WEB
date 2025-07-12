@@ -12,14 +12,16 @@ class Alert extends Eloquent
     public $incrementing = false;
 
     protected $fillable = [
-        'alert_id',
         'timestamp',
-        'agent_id',
-        'agent_name',
-        'manager_name',
-        'rule_id',
-        'level',
-        'rule_description',
-        'full_log'
+        'month',
+        'day',
+        'time',
+        'host',
+        'process',
+        'pid',
+        'message',
+        'raw',
+        'source'
     ];
+
 }
