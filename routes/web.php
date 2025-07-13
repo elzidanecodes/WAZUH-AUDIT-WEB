@@ -11,18 +11,15 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('dashboard');
-
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/log', [LogController::class, 'index'])->name('log');
     Route::get('/log/{id}', [LogController::class, 'show']);
-    Route::get('/api/alert-stats', [LogController::class, 'getAlertStats'])->name('charts');
+    Route::get('/api/alert-stats', [DashboardController::class, 'getAlertStats']);
     
     // Tampilkan halaman Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
