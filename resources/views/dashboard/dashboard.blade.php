@@ -77,17 +77,19 @@
   <div class="w-full bg-white rounded-lg shadow-sm dark:bg-gray-800 p-4 md:p-6 flex flex-col justify-between">
     <div class="flex justify-between">
       <div>
-        <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">{{ $alertCountFormatted }}</h5>
+        <h5 id="total-alerts" class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">-</h5>
         <p class="text-base font-normal text-gray-500 dark:text-gray-400">Alert this week</p>
       </div>
-      <div class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center">
-        {{ number_format(abs($percentageChange), 2) }}%
+      <div id="percent-change" class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center">
+        0.00%
         <svg class="w-3 h-3 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
         </svg>
       </div>
     </div>
-    <div id="area-chart" class="my-4"></div>
+
+    <div id="area-chart" class="w-full"></div>
+
     <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
       <div class="flex justify-between items-center pt-5">
         <!-- Button -->
@@ -104,22 +106,12 @@
         </button>
         <!-- Dropdown menu -->
         <div id="lastDaysdropdown1" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
-          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton1">
-            <li>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Yesterday</a>
-            </li>
-            <li>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Today</a>
-            </li>
-            <li>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last 7 days</a>
-            </li>
-            <li>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last 30 days</a>
-            </li>
-            <li>
-              <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last 90 days</a>
-            </li>
+          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="loadChart('yesterday')">Yesterday</a></li>
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="loadChart('today')">Today</a></li>
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="loadChart('last_7_days')">Last 7 days</a></li>
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="loadChart('last_30_days')">Last 30 days</a></li>
+              <li><a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="loadChart('last_90_days')">Last 90 days</a></li>
           </ul>
         </div>
         <a
@@ -148,7 +140,7 @@
         </svg>
       </div>
     </div>
-    <div id="area-chart" class="my-4"></div>
+    <div id="area-chart" class="w-full h-[350px]"></div>
     <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
       <div class="flex justify-between items-center pt-5">
         <!-- Button -->
@@ -165,14 +157,14 @@
         </button>
         <!-- Dropdown menu -->
         <div id="lastDaysdropdown2" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
-  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton2">
-    <li><a href="#" onclick="event.preventDefault(); loadChart('yesterday')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Yesterday</a></li>
-    <li><a href="#" onclick="event.preventDefault(); loadChart('today')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Today</a></li>
-    <li><a href="#" onclick="event.preventDefault(); loadChart('week')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last 7 days</a></li>
-    <li><a href="#" onclick="event.preventDefault(); loadChart('month')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last 30 days</a></li>
-    <li><a href="#" onclick="event.preventDefault(); loadChart('year')" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Last 90 days</a></li>
-  </ul>
-</div>
+          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+              <li><a href="#" onclick="loadChart('yesterday')">Yesterday</a></li>
+              <li><a href="#" onclick="loadChart('today')">Today</a></li>
+              <li><a href="#" onclick="loadChart('last_7_days')">Last 7 days</a></li>
+              <li><a href="#" onclick="loadChart('last_30_days')">Last 30 days</a></li>
+              <li><a href="#" onclick="loadChart('last_90_days')">Last 90 days</a></li>
+          </ul>
+        </div>
 
         <a
           href="#"
@@ -189,20 +181,16 @@
 </div>
 
 
-@push('scripts')
-<!-- Include ApexCharts -->
+@section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<!-- Include your chart script -->
 <script src="{{ asset('js/chartWeek.js') }}"></script>
 <script>
-    // Initialize charts when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        loadChart('week', 'area-chart');
-
-    });
+    window.onload = () => {
+        setTimeout(() => {
+            loadChart('last_7_days');
+        }, 300);
+    };
 </script>
-@endpush
-
-
+@endsection
 
 @endsection
