@@ -7,7 +7,7 @@ from datetime import datetime
 model = joblib.load('./outputs/model_rf.pkl')
 
 # === 2. Load data log CSV ===
-df = pd.read_csv('storage/app/python/inputs/uploaded.csv')
+df = pd.read_csv('../storage/app/python/inputs/uploaded856.csv')
 
 # === 3. Gabungkan field untuk prediksi ===
 df['combined'] = df['description'].fillna('') + ' ' + df['decoder'].fillna('')
@@ -27,7 +27,7 @@ hasil = df[['timestamp', 'description', 'decoder', 'predicted_label', 'source']]
 
 # === 7. Simpan ke MongoDB TANPA menghapus data lama
 client = MongoClient('mongodb://admin:admin9876@139.59.123.110:27017/')
-db = client['wazuh_db']
+db = client['wazuh_audit']
 collection = db['predicted_logs']
 
 # Insert sebagai batch

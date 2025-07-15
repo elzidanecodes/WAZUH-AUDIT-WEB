@@ -9,7 +9,7 @@
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
                 {{-- Filter Dropdown --}}
-                <div>
+                {{-- <div>
                     <button id="dropdownRadioButton" data-dropdown-toggle="dropdownRadio" class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
                         <svg class="w-3 h-3 text-gray-500 dark:text-gray-400 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z"/>
@@ -54,7 +54,7 @@
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
                 <!-- Tombol Upload -->
                 <form action="{{ route('reports.upload') }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-3">
                     @csrf
@@ -62,10 +62,12 @@
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
                         </svg>
-                        Upload File CSV
+                        Upload File Log
                     </label>
-                    <input id="file-upload" type="file" name="file" class="hidden" onchange="this.form.submit()">
+                    
+                    <input id="file-upload" type="file" name="files[]" accept=".log,.txt" multiple required class="hidden" onchange="this.form.submit()">
                 </form>
+
                 <label for="table-search" class="sr-only">Search</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 flex items-center ps-3 pointer-events-none">
@@ -76,6 +78,9 @@
                     <input type="text" id="table-search" class="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for items">
                 </div>
             </div>
+            @if ($errors->has('file'))
+                <p class="text-red-500 text-sm mt-2">{{ $errors->first('file') }}</p>
+            @endif
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -83,7 +88,7 @@
                         <th class="px-6 py-3">Deskripsi</th>
                         <th class="px-6 py-3">Decoder</th>
                         <th class="px-6 py-3">Hasil Prediksi</th>
-                        <th class="px-6 py-3">Source</th>
+                        {{-- <th class="px-6 py-3">Source</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -101,7 +106,7 @@
                                     <span class="bg-green-200 text-green-800 text-xs font-medium px-2 py-1 rounded">Normal</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 italic text-gray-400">{{ $log->source ?? '-' }}</td>
+                            {{-- <td class="px-6 py-4 italic text-gray-400">{{ $log->source ?? '-' }}</td> --}}
                         </tr>
                         @empty
                         <tr>

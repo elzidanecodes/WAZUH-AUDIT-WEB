@@ -44,10 +44,10 @@ grid_search = GridSearchCV(
 grid_search.fit(X, y)
 
 # Tampilkan hasil terbaik
-print("✅ Best Parameters:", grid_search.best_params_)
-print("📊 Best F1 Macro Score:", grid_search.best_score_)
+print("Best Parameters:", grid_search.best_params_)
+print("Best F1 Macro Score:", grid_search.best_score_)
 
 # Simpan model terbaik
 best_model = grid_search.best_estimator_
 joblib.dump(best_model, './outputs/model_rf.pkl')
-print("✅ Model terbaik disimpan sebagai model_rf.pkl")
+print("Model terbaik disimpan sebagai model_rf.pkl")

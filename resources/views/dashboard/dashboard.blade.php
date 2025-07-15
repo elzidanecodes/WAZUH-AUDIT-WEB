@@ -15,8 +15,8 @@
                     {{ number_format(abs($percentageChange), 2) }}%
                 </span>
             </div>
-            <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">
-                <iconify-icon icon="iconamoon:credit-card-duotone" class="text-2xl"></iconify-icon>
+            <div class="w-14 h-14 flex items-center justify-center p-2 bg-blue-100 text-blue-600 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="bell"><path fill="currentColor" d="M18,13.18V10a6,6,0,0,0-5-5.91V3a1,1,0,0,0-2,0V4.09A6,6,0,0,0,6,10v3.18A3,3,0,0,0,4,16v2a1,1,0,0,0,1,1H8.14a4,4,0,0,0,7.72,0H19a1,1,0,0,0,1-1V16A3,3,0,0,0,18,13.18ZM8,10a4,4,0,0,1,8,0v3H8Zm4,10a2,2,0,0,1-1.72-1h3.44A2,2,0,0,1,12,20Zm6-3H6V16a1,1,0,0,1,1-1H17a1,1,0,0,1,1,1Z"></path></svg>
             </div>
         </div>
     </div>
@@ -26,12 +26,12 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-2xl font-bold mb-1">$75.09k</h3>
-                <p class="text-gray-500 text-sm">Total Income</p>
+                <p class="text-gray-500 text-sm">Total Report</p>
                 <span class="inline-flex items-center text-xs bg-green-100 text-green-600 font-medium px-2.5 py-0.5 rounded">
                     <i class="ti ti-arrow-badge-up mr-1"></i> 7.36%
                 </span>
             </div>
-            <div class="w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">
+            <div class="w-14 h-14 flex items-center justify-center p-2 bg-blue-100 text-blue-600 rounded-full">
                 <iconify-icon icon="iconamoon:store-duotone" class="text-2xl"></iconify-icon>
             </div>
         </div>
@@ -42,7 +42,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-2xl font-bold mb-1">$62.8k</h3>
-                <p class="text-gray-500 text-sm">Total Expenses</p>
+                <p class="text-gray-500 text-sm">Total Brute Force</p>
                 <span class="inline-flex items-center text-xs bg-red-100 text-red-600 font-medium px-2.5 py-0.5 rounded">
                     <i class="ti ti-arrow-badge-up mr-1"></i> 5.62%
                 </span>
@@ -58,7 +58,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-2xl font-bold mb-1">$6.4k</h3>
-                <p class="text-gray-500 text-sm">Investments</p>
+                <p class="text-gray-500 text-sm">Total DDos</p>
                 <span class="inline-flex items-center text-xs bg-green-100 text-green-600 font-medium px-2.5 py-0.5 rounded">
                     <i class="ti ti-arrow-badge-up mr-1"></i> 2.53%
                 </span>
