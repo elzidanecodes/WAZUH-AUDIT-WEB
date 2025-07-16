@@ -2,6 +2,7 @@ import pandas as pd
 import joblib
 from pymongo import MongoClient
 from datetime import datetime
+from bson import UTCDateTime
 
 # === 1. Load model ===
 model = joblib.load('./outputs/model_rf.pkl')
@@ -22,8 +23,14 @@ df['source'] = f"upload_{upload_time}"
 # === 6. Ambil kolom yang disimpan
 hasil = df[['timestamp', 'description', 'decoder', 'predicted_label', 'source']]
 
-# === 6. Format timestamp (opsional)
-# df['timestamp'] = pd.to_datetime(df['timestamp']) # jika perlu
+# Konversi string timestamp ke datetime
+df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+
+# Drop baris dengan timestamp gagal parsing
+df = df.dropna(subset=['timestamp'])
+
+# Konversi ke Mongo UTCDateTime (milisecond)
+df['timestamp'] = df['timestamp'].apply(lambda x: UTCDateTime(int(x.timestamp() * 1000)))
 
 # === 7. Simpan ke MongoDB TANPA menghapus data lama
 client = MongoClient('mongodb://admin:admin9876@139.59.123.110:27017/')
