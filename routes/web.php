@@ -17,6 +17,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/chart-prediksi', [DashboardController::class, 'getPredictedPieData']);
     Route::get('/log', [LogController::class, 'index'])->name('log');
     Route::get('/log/{id}', [LogController::class, 'show']);
     Route::get('/api/alert-stats', [DashboardController::class, 'getAlertStats']);

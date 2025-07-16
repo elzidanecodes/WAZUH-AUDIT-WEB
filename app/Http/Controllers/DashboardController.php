@@ -6,6 +6,7 @@ use App\Models\Alert;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use MongoDB\BSON\UTCDateTime; 
+use App\Models\PredictedLog;
 
 
 class DashboardController extends Controller
@@ -13,7 +14,25 @@ class DashboardController extends Controller
     
     public function index()
     {
-        // Total log saat ini
+        // Report statistics
+        $totalNormal = PredictedLog::where('predicted_label', 'normal')->count();
+        $totalBruteForce = PredictedLog::where('predicted_label', 'brute_force')->count();
+        $totalDdos = PredictedLog::where('predicted_label', 'ddos')->count();
+
+        $totalReports = $totalNormal + $totalBruteForce + $totalDdos;
+
+        // Jumlah report minggu lalu (7–14 hari lalu)
+        $reportsCountLastWeek = PredictedLog::whereBetween('timestamp', [
+            Carbon::now()->subDays(14),
+            Carbon::now()->subDays(7)
+        ])->count();
+
+        // Hitung persentase kenaikan/penurunan
+        $percentageChangeReports = $reportsCountLastWeek > 0
+            ? (($totalReports - $reportsCountLastWeek) / $reportsCountLastWeek) * 100
+            : 0;
+
+        // Total Alert
         $alertCount = Alert::count();
 
         // Jumlah log minggu lalu (7–14 hari lalu)
@@ -29,10 +48,19 @@ class DashboardController extends Controller
 
         // Format output count
         $alertCountFormatted = $this->formatLargeNumber($alertCount);
+        $totalReportsFormatted = $this->formatLargeNumber($totalReports);
+        $bruteForceCountFormatted = $this->formatLargeNumber($totalBruteForce);
+        $ddosCountFormatted = $this->formatLargeNumber($totalDdos);
+        $normalCountFormatted = $this->formatLargeNumber($totalNormal);
 
         return view('dashboard.dashboard', compact(
             'alertCountFormatted',
-            'percentageChange'
+            'totalReportsFormatted',
+            'percentageChange',
+            'bruteForceCountFormatted',
+            'ddosCountFormatted',
+            'normalCountFormatted',
+            'percentageChangeReports'
         ));
     }
 
@@ -105,6 +133,31 @@ class DashboardController extends Controller
             'data' => $data,
             'total' => $totalThisWeek,
             'percentageChange' => round($percentageChange, 2)
+        ]);
+    }
+
+    public function getPredictedPieData()
+    {
+        $counts = PredictedLog::raw(function ($collection) {
+            return $collection->aggregate([
+                ['$group' => [
+                    '_id' => '$predicted_label',
+                    'total' => ['$sum' => 1]
+                ]]
+            ]);
+        });
+
+        $labels = [];
+        $data = [];
+
+        foreach ($counts as $item) {
+            $labels[] = $item->_id;
+            $data[] = $item->total;
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'series' => $data
         ]);
     }
     private function formatLargeNumber($num)
