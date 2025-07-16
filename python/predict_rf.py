@@ -7,7 +7,7 @@ from datetime import datetime
 model = joblib.load('./outputs/model_rf.pkl')
 
 # === 2. Load data log CSV ===
-df = pd.read_csv('../storage/app/python/inputs/uploaded856.csv')
+df = pd.read_csv('../storage/app/python/inputs/uploaded.csv')
 
 # === 3. Gabungkan field untuk prediksi ===
 df['combined'] = df['description'].fillna('') + ' ' + df['decoder'].fillna('')
