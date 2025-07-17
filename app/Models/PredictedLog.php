@@ -14,6 +14,7 @@ class PredictedLog extends Model
         'timestamp',
         'decoder',
         'description',
-        'predicted_label'
+        'predicted_label',
+        'source'
     ];
 }

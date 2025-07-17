@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 
 # Koneksi MongoDB (ganti jika perlu)
-client = MongoClient("mongodb://admin:admin9876@139.59.123.110:27017/")
+client = MongoClient("mongodb://admin:admin9876@165.22.61.209:27017/")
 db = client["wazuh_audit"]
 collection = db["predicted_logs"]
 

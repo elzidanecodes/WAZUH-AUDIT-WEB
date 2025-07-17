@@ -27,4 +27,30 @@ Route::middleware('auth')->group(function () {
 
     // Upload file CSV dan jalankan prediksi
     Route::post('/reports/upload', [ReportsController::class, 'upload'])->name('reports.upload');
+    Route::get('/test-upload', function() {
+        // Simulasikan file upload
+        $files = [
+            new \Illuminate\Http\UploadedFile(
+                storage_path('dummy/auth.log'), 
+                'auth.log',
+                'text/plain',
+                null,
+                true
+            ),
+            new \Illuminate\Http\UploadedFile(
+                storage_path('dummy/syslog'),
+                'syslog',
+                'text/plain',
+                null,
+                true
+            )
+        ];
+
+        $request = new \Illuminate\Http\Request();
+        $request->files->set('files', $files);
+
+        return app()->call('App\Http\Controllers\ReportsController@upload', [$request]);
+    });
+
 });
+

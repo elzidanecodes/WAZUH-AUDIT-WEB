@@ -1,43 +1,66 @@
 import pandas as pd
 import joblib
 from pymongo import MongoClient
-from datetime import datetime
-from bson import UTCDateTime
+from datetime import datetime, timezone
 
-# === 1. Load model ===
-model = joblib.load('./outputs/model_rf.pkl')
+def main():
+    try:
+        # === 1. Load model ===
+        model = joblib.load('./outputs/model_rf.pkl')
+        
+        # === 2. Load data log CSV ===
+        df = pd.read_csv('../storage/app/python/outputs/alerts_for_labeling.csv')
+        print(f"Loaded {len(df)} raw records from CSV")
+        
+        # === 3. Fix timestamp conversion ===
+        print("\nBefore timestamp conversion:")
+        print(df['timestamp'].head())
+        
+        # Parse with correct format and add current year
+        current_year = datetime.now().year
+        df['timestamp'] = df['timestamp'].apply(
+            lambda x: pd.to_datetime(f"{current_year} {x}", format='%Y %b %d %H:%M:%S', errors='coerce')
+        )
+        
+        print("\nAfter timestamp conversion:")
+        print(df['timestamp'].head())
+        
+        # Drop invalid timestamps
+        initial_count = len(df)
+        df = df.dropna(subset=['timestamp'])
+        print(f"\nDropped {initial_count - len(df)} invalid records")
+        print(f"Keeping {len(df)} valid records")
+        
+        if len(df) == 0:
+            raise ValueError("No valid records after timestamp conversion")
+        
+        # === 4. Continue with remaining processing ===
+        df['combined'] = df['description'].fillna('') + ' ' + df['decoder'].fillna('')
+        df['predicted_label'] = model.predict(df['combined'])
+        
+        upload_time = datetime.now(timezone.utc)
+        df['source'] = f"upload_{upload_time.strftime('%Y%m%d_%H%M%S')}"
+        
+        # Prepare for MongoDB
+        records = df[['timestamp', 'description', 'decoder', 'predicted_label', 'source']].to_dict('records')
+        
+        # Convert pandas timestamps to datetime
+        for record in records:
+            if isinstance(record['timestamp'], pd.Timestamp):
+                record['timestamp'] = record['timestamp'].to_pydatetime()
+        
+        # Insert into MongoDB
+        client = MongoClient('mongodb://admin:admin9876@165.22.61.209:27017/')
+        db = client['wazuh_audit']
+        collection = db['predicted_logs']
+        
+        result = collection.insert_many(records)
+        print(f"\nSuccessfully inserted {len(result.inserted_ids)} documents")
+        
+    except Exception as e:
+        print(f"\nError: {str(e)}")
+    finally:
+        client.close()
 
-# === 2. Load data log CSV ===
-df = pd.read_csv('../storage/app/python/inputs/uploaded856.csv')
-
-# === 3. Gabungkan field untuk prediksi ===
-df['combined'] = df['description'].fillna('') + ' ' + df['decoder'].fillna('')
-
-# === 4. Prediksi ===
-df['predicted_label'] = model.predict(df['combined'])
-
-# === 5. Tambahkan kolom penanda batch upload
-upload_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-df['source'] = f"upload_{upload_time}"
-
-# === 6. Ambil kolom yang disimpan
-hasil = df[['timestamp', 'description', 'decoder', 'predicted_label', 'source']]
-
-# Konversi string timestamp ke datetime
-df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-
-# Drop baris dengan timestamp gagal parsing
-df = df.dropna(subset=['timestamp'])
-
-# Konversi ke Mongo UTCDateTime (milisecond)
-df['timestamp'] = df['timestamp'].apply(lambda x: UTCDateTime(int(x.timestamp() * 1000)))
-
-# === 7. Simpan ke MongoDB TANPA menghapus data lama
-client = MongoClient('mongodb://admin:admin9876@139.59.123.110:27017/')
-db = client['wazuh_audit']
-collection = db['predicted_logs']
-
-# Insert sebagai batch
-collection.insert_many(hasil.to_dict(orient='records'))
-
-print("Prediksi selesai dan data baru ditambahkan ke MongoDB")
+if __name__ == "__main__":
+    main()
