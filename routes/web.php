@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ReportsController;
+use App\Jobs\ConvertLogToCsv;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -24,32 +25,13 @@ Route::middleware('auth')->group(function () {
     
     // Tampilkan halaman Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
+    Route::get('/api/mttd-mttr', [ReportsController::class, 'getMttdMttr'])->name('getmttd_mttr');
 
     // Upload file CSV dan jalankan prediksi
     Route::post('/reports/upload', [ReportsController::class, 'upload'])->name('reports.upload');
-    Route::get('/test-upload', function() {
-        // Simulasikan file upload
-        $files = [
-            new \Illuminate\Http\UploadedFile(
-                storage_path('dummy/auth.log'), 
-                'auth.log',
-                'text/plain',
-                null,
-                true
-            ),
-            new \Illuminate\Http\UploadedFile(
-                storage_path('dummy/syslog'),
-                'syslog',
-                'text/plain',
-                null,
-                true
-            )
-        ];
-
-        $request = new \Illuminate\Http\Request();
-        $request->files->set('files', $files);
-
-        return app()->call('App\Http\Controllers\ReportsController@upload', [$request]);
+    Route::get('/test-dispatch', function () {
+        ConvertLogToCsv::dispatch();
+        return "Job dispatched!";
     });
 
 });
