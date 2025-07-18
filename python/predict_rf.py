@@ -1,15 +1,19 @@
 import pandas as pd
 import joblib
+import os
 from pymongo import MongoClient
 from datetime import datetime, timezone
 
 def main():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    client = None
     try:
         # === 1. Load model ===
-        model = joblib.load('./outputs/model_rf.pkl')
+        model_path = os.path.join(BASE_DIR, 'outputs/model_rf.pkl')
+        model = joblib.load(model_path)
         
         # === 2. Load data log CSV ===
-        df = pd.read_csv('../storage/app/python/outputs/alerts_for_labeling.csv')
+        df = pd.read_csv(os.path.abspath(os.path.join(BASE_DIR, '../storage/app/python/outputs/alerts_for_labeling.csv')))
         print(f"Loaded {len(df)} raw records from CSV")
         
         # === 3. Fix timestamp conversion ===
@@ -60,7 +64,8 @@ def main():
     except Exception as e:
         print(f"\nError: {str(e)}")
     finally:
-        client.close()
+        if client is not None:
+            client.close()
 
 if __name__ == "__main__":
     main()

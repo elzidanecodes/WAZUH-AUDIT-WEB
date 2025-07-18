@@ -19,6 +19,11 @@ def extract_entries(file_path):
         "query (cache)",
         "client",
         "denied (allow-query-cache did not match)"
+        "syn flood",
+        "connection refused",
+        "connection reset by peer",
+        "rate limit exceeded",
+        "exceeded the maximum number of connections"
     ]
             
     for line in lines:
