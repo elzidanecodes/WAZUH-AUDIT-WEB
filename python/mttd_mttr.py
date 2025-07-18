@@ -1,61 +1,76 @@
 from pymongo import MongoClient
 import pandas as pd
 from datetime import datetime
+import os
 
-# Koneksi MongoDB (ganti jika perlu)
-client = MongoClient("mongodb://admin:admin9876@165.22.61.209:27017/")
-db = client["wazuh_audit"]
-collection = db["predicted_logs"]
+def hitung_mttd_mttr():
+    try:
+        # Koneksi MongoDB dari ENV atau fallback
+        mongo_uri = os.getenv("MONGO_URI", "mongodb://admin:admin9876@165.22.61.209:27017/")
+        client = MongoClient(mongo_uri)
+        db = client["wazuh_audit"]
+        collection = db["predicted_logs"]
 
-# Ambil data dari MongoDB
-data = list(collection.find())
-df = pd.DataFrame(data)
+        # Ambil data dan validasi
+        data = list(collection.find())
+        if not data:
+            print("❌ Data kosong, tidak ada log untuk dihitung.")
+            return {"mttd": 0, "mttr": 0, "total_event": 0}
 
-# Pastikan kolom yang dibutuhkan ada
-if 'timestamp' not in df.columns or 'predicted_label' not in df.columns:
-    raise ValueError("Kolom 'timestamp' dan 'predicted_label' wajib ada.")
+        df = pd.DataFrame(data)
+        if 'timestamp' not in df or 'predicted_label' not in df:
+            raise ValueError("Kolom 'timestamp' dan 'predicted_label' wajib ada.")
 
-# Format timestamp dan urutkan
-df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce', format='%b %d %H:%M:%S')
-df = df.dropna(subset=['timestamp'])
+        # Konversi timestamp
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        df = df.dropna(subset=['timestamp']).sort_values(by='timestamp')
 
-# Variabel bantu
-deteksi_times = []
-respon_times = []
-in_attack = False
-serangan_start = None
-deteksi_time = None
-
-# Hitung MTTD & MTTR
-for _, row in df.iterrows():
-    label = row['predicted_label']
-    waktu = row['timestamp']
-
-    if label in ['brute_force', 'ddos']:
-        if not in_attack:
-            serangan_start = waktu
-            in_attack = True
-        deteksi_time = waktu
-    elif label == 'normal' and in_attack:
-        waktu_normal = waktu
-        mttd = (deteksi_time - serangan_start).total_seconds() / 60
-        mttr = (waktu_normal - deteksi_time).total_seconds() / 60
-        deteksi_times.append(mttd)
-        respon_times.append(mttr)
+        # Hitung MTTD dan MTTR
+        deteksi_times, respon_times = [], []
         in_attack = False
+        serangan_start = None
+        deteksi_time = None
 
-# Rata-rata
-rata_mttd = sum(deteksi_times) / len(deteksi_times) if deteksi_times else 0
-rata_mttr = sum(respon_times) / len(respon_times) if respon_times else 0
+        for _, row in df.iterrows():
+            label = row['predicted_label']
+            waktu = row['timestamp']
 
-# Simpan ke MongoDB
-stat_collection = db["statistics"]
-stat_collection.delete_many({})
-stat_collection.insert_one({
-    "mttd_menit": round(rata_mttd, 2),
-    "mttr_menit": round(rata_mttr, 2),
-    "total_event": len(df),
-    "dihitung_pada": datetime.now()
-})
+            if label in ['brute_force', 'ddos']:
+                if not in_attack:
+                    serangan_start = waktu
+                    in_attack = True
+                deteksi_time = waktu
+            elif label == 'normal' and in_attack:
+                waktu_normal = waktu
+                mttd = (deteksi_time - serangan_start).total_seconds() / 60
+                mttr = (waktu_normal - deteksi_time).total_seconds() / 60
+                deteksi_times.append(mttd)
+                respon_times.append(mttr)
+                in_attack = False
 
-print("MTTD dan MTTR berhasil dihitung dan disimpan.")
+        rata_mttd = sum(deteksi_times) / len(deteksi_times) if deteksi_times else 0
+        rata_mttr = sum(respon_times) / len(respon_times) if respon_times else 0
+
+        # Simpan ke DB
+        stat_collection = db["statistics"]
+        stat_collection.delete_many({})
+        stat_collection.insert_one({
+            "mttd_menit": round(rata_mttd, 2),
+            "mttr_menit": round(rata_mttr, 2),
+            "total_event": len(df),
+            "dihitung_pada": datetime.now()
+        })
+
+        print("MTTD dan MTTR berhasil dihitung dan disimpan.")
+        return {
+            "mttd": round(rata_mttd, 2),
+            "mttr": round(rata_mttr, 2),
+            "total_event": len(df)
+        }
+
+    except Exception as e:
+        print("❌ Error:", e)
+        return {"mttd": 0, "mttr": 0, "total_event": 0}
+
+if __name__ == "__main__":
+    hitung_mttd_mttr()
