@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\ConvertLogToCsv;
+use MongoDB\BSON\Regex;
 
 class ReportsController extends Controller
 {
@@ -18,13 +19,15 @@ class ReportsController extends Controller
         $query = PredictedLog::query();
 
         if ($request->has('search')) {
-            $search = $request->input('search');
+            $search = str_replace(' ', '_', $request->input('search'));
+            $regex = new Regex($search, 'i');
 
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%$search%")
-                ->orWhere('predicted_label', 'like', "%$search%");
+            $query->where(function ($q) use ($regex) {
+                $q->where('description', 'regex', $regex)
+                ->orWhere('predicted_label', 'regex', $regex);
             });
         }
+
         $logs = $query->orderBy('timestamp', 'desc')->paginate(10);
         $stat = Statistics::orderBy('_id', 'desc')->first();
 

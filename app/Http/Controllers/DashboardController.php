@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use MongoDB\BSON\UTCDateTime; 
 use App\Models\PredictedLog;
+use MongoDB\BSON\Regex;
 
 
 class DashboardController extends Controller
@@ -15,9 +16,9 @@ class DashboardController extends Controller
     public function index()
     {
         // Report statistics
-        $totalNormal = PredictedLog::where('predicted_label', 'normal')->count();
-        $totalBruteForce = PredictedLog::where('predicted_label', 'brute_force')->count();
-        $totalDdos = PredictedLog::where('predicted_label', 'ddos')->count();
+        $totalNormal = PredictedLog::where('predicted_label', 'regex', new Regex('^normal$', 'i'))->count();
+        $totalBruteForce = PredictedLog::where('predicted_label', 'regex', new Regex('^brute_force$', 'i'))->count();
+        $totalDdos = PredictedLog::where('predicted_label', 'regex', new Regex('^ddos$', 'i'))->count();
 
         $totalReports = $totalNormal + $totalBruteForce + $totalDdos;
 
@@ -140,18 +141,27 @@ class DashboardController extends Controller
     {
         $counts = PredictedLog::raw(function ($collection) {
             return $collection->aggregate([
-                ['$group' => [
-                    '_id' => '$predicted_label',
-                    'total' => ['$sum' => 1]
-                ]]
+                [
+                    '$group' => [
+                        '_id' => [ '$toLower' => '$predicted_label' ],
+                        'total' => [ '$sum' => 1 ]
+                    ]
+                ]
             ]);
         });
 
         $labels = [];
         $data = [];
 
+        $labelMap = [
+            'ddos' => 'DDoS',
+            'brute_force' => 'Brute Force',
+            'normal' => 'Normal'
+        ];
+
         foreach ($counts as $item) {
-            $labels[] = $item->_id;
+            $key = $item->_id;
+            $labels[] = $labelMap[$key] ?? ucfirst(str_replace('_', ' ', $key));
             $data[] = $item->total;
         }
 
@@ -160,6 +170,8 @@ class DashboardController extends Controller
             'series' => $data
         ]);
     }
+
+
     private function formatLargeNumber($num)
     {
         if ($num >= 1000000000) {

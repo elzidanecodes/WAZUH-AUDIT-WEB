@@ -6,7 +6,7 @@
     <div class="card p-4 shadow-sm">
         <h2 class="space-y-6 mb-4 fw-bold">Data Prediksi Serangan</h2>
 
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg mb-4">
             <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
                 {{-- Filter Dropdown --}}
                 {{-- <div>
@@ -103,19 +103,12 @@
                             <td class="px-6 py-4">{{ $log->description }}</td>
                             <td class="px-6 py-4">{{ $log->decoder }}</td>
                             <td class="px-6 py-4">
-                                @if ($log->predicted_label === 'brute_force')
-                                    <span class="bg-yellow-200 text-yellow-800 text-xs font-medium px-2 py-1 rounded">Brute Force</span>
-                                @elseif ($log->predicted_label === 'ddos')
-                                    <span class="bg-red-200 text-red-800 text-xs font-medium px-2 py-1 rounded">DDoS</span>
-                                @else
-                                    <span class="bg-green-200 text-green-800 text-xs font-medium px-2 py-1 rounded">Normal</span>
-                                @endif
+                                <span class="{{ $log->badge_class }}">{{ $log->label_text }}</span>
                             </td>
-                            {{-- <td class="px-6 py-4 italic text-gray-400">{{ $log->source ?? '-' }}</td> --}}
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-gray-500">Belum ada data prediksi.</td>
+                            <td colspan="5" class="text-center py-4 text-red-600 dark:text-red-400">Belum ada data prediksi.</td>
                         </tr>
                     @endforelse
 
