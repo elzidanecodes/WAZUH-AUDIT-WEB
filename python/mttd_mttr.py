@@ -14,7 +14,7 @@ def hitung_mttd_mttr():
         # Ambil data dan validasi
         data = list(collection.find())
         if not data:
-            print("❌ Data kosong, tidak ada log untuk dihitung.")
+            print("Data kosong, tidak ada log untuk dihitung.")
             return {"mttd": 0, "mttr": 0, "total_event": 0}
 
         df = pd.DataFrame(data)
@@ -69,7 +69,7 @@ def hitung_mttd_mttr():
         }
 
     except Exception as e:
-        print("❌ Error:", e)
+        print("Error:", e)
         return {"mttd": 0, "mttr": 0, "total_event": 0}
 
 if __name__ == "__main__":
