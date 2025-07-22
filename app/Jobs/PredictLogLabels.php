@@ -19,9 +19,15 @@ class PredictLogLabels implements ShouldQueue
         try {
             Log::info("Mulai prediksi...");
 
-            Process::fromShellCommandline('python ' . base_path('python/predict_rf.py'))
-                ->setTimeout(300)
-                ->mustRun();
+            $process = Process::fromShellCommandline('python ' . base_path('python/predict_rf.py'));
+            $process->setTimeout(300);
+            $process->run(function ($type, $buffer) {
+                Log::info("[PYTHON predict_rf.py] " . $buffer);
+            });
+
+            if (!$process->isSuccessful()) {
+                throw new \RuntimeException('❌ predict_rf.py gagal: ' . $process->getErrorOutput());
+            }
 
             Log::info("Prediksi selesai dan hasil disimpan ke MongoDB.");
             MttdMttr::dispatch();

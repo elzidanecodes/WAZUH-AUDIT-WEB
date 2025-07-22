@@ -20,9 +20,15 @@ class MttdMttr implements ShouldQueue
         try {
             Log::info("Mulai Menghitung MTTR dan MTTD...");
 
-            Process::fromShellCommandline('python ' . base_path('python/mttd_mttr.py'))
-                ->setTimeout(300)
-                ->mustRun();
+            $process = Process::fromShellCommandline('python ' . base_path('python/mttd_mttr.py'));
+            $process->setTimeout(300);
+            $process->run(function ($type, $buffer) {
+                Log::info("[PYTHON mttd_mttr.py] " . $buffer);
+            });
+
+            if (!$process->isSuccessful()) {
+                throw new \RuntimeException('❌ predict_rf.py gagal: ' . $process->getErrorOutput());
+            }
 
             Log::info("MTTR dan MTTD selesai dihitung....");
 
