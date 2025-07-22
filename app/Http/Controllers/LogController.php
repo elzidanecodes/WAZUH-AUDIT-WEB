@@ -7,30 +7,28 @@ use App\Models\Alert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use MongoDB\BSON\Regex;
 
 class LogController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = 10;
-        $page = $request->input('page', 1);
-        $skip = ($page - 1) * $perPage;
+        $query = Alert::query();
 
-        $query = Alert::orderBy('timestamp', 'desc');
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $regex = new Regex($search, 'i'); // pencarian tidak case-sensitive
 
-        if ($request->has('source')) {
-            $query->where('source', $request->input('source'));
+            $query->where(function ($q) use ($regex) {
+                $q->where('message', 'regex', $regex)
+                ->orWhere('process', 'regex', $regex)
+                ->orWhere('host', 'regex', $regex);
+            });
         }
 
-        $data = $query->skip($skip)->take($perPage)->get();
-        $total = $query->count();
+        $logs = $query->orderBy('timestamp', 'desc')->paginate(20);
 
-        $alerts = new LengthAwarePaginator($data, $total, $perPage, $page, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
-
-        return view('historis.log', compact('alerts'));
+        return view('historis.log', compact('logs'));
     }
 
     public function show($id)
