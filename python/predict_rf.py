@@ -16,20 +16,20 @@ def main():
     client = None
 
     try:
-        print("🚀 Mulai proses prediksi dan insert MongoDB...")
+        print("Mulai proses prediksi dan insert MongoDB...")
         
         # === 1. Load model ===
         model_path = os.path.join(BASE_DIR, 'outputs/model_rf.pkl')
         if not os.path.exists(model_path):
-            raise FileNotFoundError("❌ Model file tidak ditemukan di outputs/model_rf.pkl")
+            raise FileNotFoundError("Model file tidak ditemukan di outputs/model_rf.pkl")
         model = joblib.load(model_path)
 
         # === 2. Load CSV ===
         csv_path = os.path.abspath(os.path.join(BASE_DIR, '../storage/app/python/outputs/alerts_for_labeling.csv'))
         if not os.path.exists(csv_path):
-            raise FileNotFoundError(f"❌ CSV tidak ditemukan: {csv_path}")
+            raise FileNotFoundError(f"CSV tidak ditemukan: {csv_path}")
         df = pd.read_csv(csv_path)
-        print(f"📄 Loaded {len(df)} baris dari file CSV")
+        print(f"Loaded {len(df)} baris dari file CSV")
 
         # === 3. Timestamp conversion ===
         current_year = datetime.now().year
@@ -39,7 +39,7 @@ def main():
         df = df.dropna(subset=['timestamp'])
         df['timestamp'] = df['timestamp'].apply(lambda x: x.replace(microsecond=0))
         if df.empty:
-            raise ValueError("⛔ Tidak ada data valid setelah parsing timestamp")
+            raise ValueError("Tidak ada data valid setelah parsing timestamp")
 
         # === 4. Prediksi dan feature engineering ===
         df['combined'] = df['description'].fillna('') + ' ' + df['decoder'].fillna('')
@@ -65,7 +65,14 @@ def main():
         except errors.OperationFailure:
             pass  # Sudah ada
 
-        # === 7. Ambil hash_key yang sudah ada
+       # === 7. Dedup internal CSV ===
+        unique_records = {}
+        for r in records:
+            unique_records[r['hash_key']] = r  # hapus duplikat dalam CSV
+
+        records = list(unique_records.values())
+
+        # === 8. Cek yang belum ada di MongoDB
         incoming_hashes = set(r['hash_key'] for r in records)
         existing_hashes = set(doc['hash_key'] for doc in collection.find(
             {'hash_key': {'$in': list(incoming_hashes)}},
@@ -73,19 +80,20 @@ def main():
         ))
         filtered_records = [r for r in records if r['hash_key'] not in existing_hashes]
 
-        # === 8. Insert data baru
+        # === 9. Insert hanya data unik yang belum ada
         if filtered_records:
             result = collection.insert_many(filtered_records, ordered=False)
-            print(f"✅ Inserted {len(result.inserted_ids)} dari {len(records)} total records.")
+            print(f"Inserted {len(result.inserted_ids)} dari {len(records)} total records (setelah dedup dan filter DB).")
         else:
-            print("ℹ️ Semua data sudah ada di database. Tidak ada yang diinsert.")
+            print("Semua data sudah ada di database. Tidak ada yang diinsert.")
+
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
     finally:
         if client:
             client.close()
-            print("🔒 Koneksi MongoDB ditutup.")
+            print("Koneksi MongoDB ditutup.")
 
 if __name__ == "__main__":
     main()
