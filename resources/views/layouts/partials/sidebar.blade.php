@@ -64,28 +64,41 @@
    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
       <ul class="space-y-2 font-medium">
          <li>
-            <a href="{{route('dashboard')}}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+            <!-- Dashboard -->
+            <a href="{{ route('dashboard') }}"
+              class="flex items-center p-2 rounded-lg group border-l-4
+              {{ request()->routeIs('dashboard') 
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-white border-blue-500'
+                  : 'text-gray-900 dark:text-white border-transparent hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+              <svg class="w-5 h-5 transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white {{ request()->routeIs('dashboard') ? 'text-blue-700 dark:text-white' : 'text-gray-500 dark:text-gray-400' }}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
                   <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
                   <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
                </svg>
-               <span class="ms-3">Dashboard</span>
+              <span class="ms-3">Dashboard</span>
             </a>
          </li>
          <li>
-            <a href="{{route('reports')}}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="m20 8-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM9 19H7v-9h2v9zm4 0h-2v-6h2v6zm4 0h-2v-3h2v3zM14 9h-1V4l5 5h-4z"></path></svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Reports</span>
-               {{-- <span class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">Pro</span> --}}
+            <!-- Reports -->
+            <a href="{{ route('reports') }}"
+              class="flex items-center p-2 rounded-lg group border-l-4
+              {{ request()->routeIs('reports') 
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-white border-blue-500'
+                  : 'text-gray-900 dark:text-white border-transparent hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+              <svg class="w-5 h-5 transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white {{ request()->routeIs('reports') ? 'text-blue-700 dark:text-white' : 'text-gray-500 dark:text-gray-400' }}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="m20 8-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM9 19H7v-9h2v9zm4 0h-2v-6h2v6zm4 0h-2v-3h2v3zM14 9h-1V4l5 5h-4z"></path></svg>
+              <span class="ms-3">Reports</span>
             </a>
          </li>
          <li>
-            <a href="{{route('log')}}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <!-- Log & History -->
+            <a href="{{ route('log') }}"
+              class="flex items-center p-2 rounded-lg group border-l-4
+              {{ request()->routeIs('log') 
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-white border-blue-500'
+                  : 'text-gray-900 dark:text-white border-transparent hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+              <svg class="w-5 h-5 transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white {{ request()->routeIs('log') ? 'text-blue-700 dark:text-white' : 'text-gray-500 dark:text-gray-400' }}" aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <path d="M12 8v5h5v-2h-3V8z"></path>
                 <path d="M21.292 8.497a8.957 8.957 0 0 0-1.928-2.862 9.004 9.004 0 0 0-4.55-2.452 9.09 9.09 0 0 0-3.626 0 8.965 8.965 0 0 0-4.552 2.453 9.048 9.048 0 0 0-1.928 2.86A8.963 8.963 0 0 0 4 12l.001.025H2L5 16l3-3.975H6.001L6 12a6.957 6.957 0 0 1 1.195-3.913 7.066 7.066 0 0 1 1.891-1.892 7.034 7.034 0 0 1 2.503-1.054 7.003 7.003 0 0 1 8.269 5.445 7.117 7.117 0 0 1 0 2.824 6.936 6.936 0 0 1-1.054 2.503c-.25.371-.537.72-.854 1.036a7.058 7.058 0 0 1-2.225 1.501 6.98 6.98 0 0 1-1.313.408 7.117 7.117 0 0 1-2.823 0 6.957 6.957 0 0 1-2.501-1.053 7.066 7.066 0 0 1-1.037-.855l-1.414 1.414A8.985 8.985 0 0 0 13 21a9.05 9.05 0 0 0 3.503-.707 9.009 9.009 0 0 0 3.959-3.26A8.968 8.968 0 0 0 22 12a8.928 8.928 0 0 0-.708-3.503z"></path></svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">History & Log</span>
-               {{-- <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span> --}}
+              <span class="ms-3">History & Log</span>
             </a>
          </li>
       </ul>
