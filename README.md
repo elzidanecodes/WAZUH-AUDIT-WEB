@@ -1,66 +1,182 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+    <img src="public/logo.png" alt="Logo/Preview Aplikasi" width="180"/>
 </p>
 
-## About Laravel
+<h1 align="center">WAZUDIT — Cyber Attack Detection & Audit Platform</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+    Dibangun oleh <b>Laita Zidan</b>. Sistem ini mengintegrasikan <b>Wazuh SIEM</b>, 
+    <b>Machine Learning (Random Forest)</b>, notifikasi <b>Telegram</b>, serta 
+    perhitungan metrik <b>MTTD</b> & <b>MTTR</b> melalui dashboard modern berbasis Laravel + MongoDB.
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🎯 Tujuan Sistem
 
-## Learning Laravel
+- Mengumpulkan, menormalkan, dan menampilkan log keamanan untuk audit.
+- Memprediksi kategori insiden (DDoS, Brute Force, Normal) menggunakan model **Random Forest**.
+- Menghitung metrik operasional keamanan: **MTTD** (Mean Time To Detect) & **MTTR** (Mean Time To Respond).
+- Menyediakan **dashboard monitoring & audit** yang interaktif, dengan laporan siap unduh (CSV/PDF).
+- Mengirim **notifikasi Telegram** untuk respons cepat terhadap insiden.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🧠 Teknologi yang Digunakan
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Komponen                  | Fungsi                                                          |
+| ------------------------- | --------------------------------------------------------------- |
+| **Wazuh Manager + Agent** | SIEM untuk mengumpulkan dan mendeteksi log serangan             |
+| **Laravel 11 + Vite**     | Aplikasi web, routing, jobs/queue, scheduler                    |
+| **Blade + Alpine.js**     | UI dashboard, tabel, form                                       |
+| **TailwindCSS + Flowbite**| Styling dan komponen UI                                         |
+| **ApexCharts**            | Grafik tren & pie chart di dashboard                            |
+| **MongoDB**               | Penyimpanan koleksi `alerts` dan `predicted_logs`               |
+| **MySQL**                 | Backend queue untuk job antrian Laravel                         |
+| **Symfony Process**       | Menjalankan skrip Python dari job Laravel                       |
+| **Python (scikit-learn)** | Model Random Forest untuk klasifikasi log & perhitungan metrik  |
+| **Monolog**               | Logging proses, termasuk output skrip Python                    |
+| **Telegram Bot API**      | Notifikasi otomatis insiden                                     |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🧩 Struktur Direktori
 
-### Premium Partners
+```
+wazudit/
+├── app/
+│   ├── Http/Controllers/      # Dashboard, Log, Reports
+│   ├── Jobs/                  # ConvertLogToCsv, PredictLogLabels, MttdMttr
+│   └── Models/                # Alert, PredictedLog, Statistics
+├── python/                    # Skrip ML & util (predict_rf.py, mttd_mttr.py, dll.)
+│   └── outputs/               # Model & hasil prediksi
+├── resources/views/           # Blade: dashboard, reports, historis
+├── public/                    # Asset build & logo
+├── routes/                    # web.php, console.php, auth.php
+├── storage/app/python/        # Tempat file upload (auth.log, syslog)
+├── config/                    # database.php (MongoDB), queue.php
+├── docs/screenshots/          # Gambar dokumentasi (hero, dashboard, reports, historis)
+└── README.md
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## 🔄 Alur Sistem (High-Level)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Wazuh Agent** mengirimkan log insiden → **Wazuh Manager**.
+2. Log diekstrak dari `auth.log` & `syslog`, diproses oleh Laravel job `ConvertLogToCsv`.
+3. **Random Forest (Python)** memprediksi label insiden: DDoS / Brute Force / Normal.
+4. Hasil prediksi disimpan di MongoDB (`predicted_logs`).
+5. Job `MttdMttr` menghitung metrik keamanan → disimpan di koleksi `statistics`.
+6. **Laravel Dashboard** menampilkan grafik tren, pie chart, log historis, serta laporan.
+7. **Telegram Bot** mengirim notifikasi insiden secara otomatis.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## ⚙️ Konfigurasi .env (contoh minimal)
 
-## Security Vulnerabilities
+```
+APP_NAME="WAZUDIT"
+APP_ENV=local
+APP_URL=http://127.0.0.1:8000
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# MongoDB (utama)
+DB_CONNECTION=mongodb
+DB_HOST=127.0.0.1
+DB_PORT=27017
+DB_DATABASE=wazuh_audit
+DB_USERNAME=
+DB_PASSWORD=
 
-## License
+# Queue database (lihat config/queue.php)
+QUEUE_CONNECTION=database
+DB_QUEUE_CONNECTION=mysql
+DB_QUEUE_TABLE=jobs
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# SQLite bawaan (opsional)
+DB_DATABASE_CLI=database/database.sqlite
+```
+
+---
+
+## 🚀 Cara Menjalankan (Windows PowerShell)
+
+Prasyarat: PHP 8.2+, Composer, Node.js 18+, MongoDB aktif, Python 3.10+, pip.
+
+```powershell
+# 1) Pindah ke folder proyek
+cd d:\Project\Laravel\wazudit
+
+# 2) Instal dependensi PHP
+composer install
+
+# 3) Salin .env dan generate APP_KEY
+copy .env.example .env
+php artisan key:generate
+
+# 4) Siapkan database
+php artisan migrate --force
+
+# 5) Link storage
+php artisan storage:link
+
+# 6) Instal dependensi frontend & jalankan dev server
+npm install
+npm run dev
+
+# 7) Siapkan Python env & paket
+python -m venv .venv ; .\.venv\Scripts\Activate.ps1 ; pip install -r python\requirement.txt
+
+# 8) Jalankan server Laravel
+php artisan serve
+
+# 9) Jalankan worker (terminal terpisah)
+php artisan queue:work
+```
+
+---
+
+<!-- ## 🖼️ Screenshot
+
+- `docs/screenshots/hero.png`
+- `docs/screenshots/01-dashboard.png`
+- `docs/screenshots/02-historis.png`
+- `docs/screenshots/03-reports.png`
+
+Contoh:
+
+<p align="center">
+    <img src="docs/screenshots/01-dashboard.png" alt="Dashboard" width="800"/>
+</p>
+
+--- -->
+
+## 👮 Role & Akses
+
+Hanya tersedia satu role: Admin (semua tugas digabung).
+
+| Role  | Fitur Utama |
+| ----- | ----------- |
+| Admin | Upload log, jalankan pipeline prediksi, lihat dashboard & reports, unduh CSV/PDF, tinjau hasil prediksi, pencarian & filter, arsip laporan, monitoring & audit penuh, notifikasi Telegram, manajemen pengguna |
+
+---
+
+## ✅ Catatan & Praktik Baik
+
+- Pastikan MongoDB aktif dan kredensial sesuai `.env`.  
+- Jalankan `queue:work` agar job Python tereksekusi.  
+- Periksa `storage/logs/laravel.log` untuk output Python (via Symfony Process).  
+- Gunakan environment Python terisolasi (`.venv`) + paket dari `python/requirement.txt`.  
+- Notifikasi Telegram opsional bisa diaktifkan lewat Bot API.  
+
+---
+
+## 📜 Lisensi
+
+&copy; 2025 Laita Zidan Dirilis dengan [Lisensi MIT](LICENSE)
+---
+
+## 🙋 Tentang Pengembang
+
+**Laita Zidan**  
+GitHub: [github.com/elzidanecodes](https://github.com/elzidanecodes)
